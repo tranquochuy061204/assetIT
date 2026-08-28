@@ -1,0 +1,25 @@
+name: vms-dashboard
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: vms-dashboard
+    ports:
+      - '3001:3001'
+    environment:
+      - PORT=3001
+      - HOST=0.0.0.0
+      - NODE_ENV=production
+      - GOOGLE_DRIVE_FOLDER_ID=1uL50asGB6ISk0jaiKOB51YOOp0PuauPz
+      - NODE_TLS_REJECT_UNAUTHORIZED=0
+    dns:
+      - 10.1.1.26
+      - 8.8.8.8
+      - 1.1.1.1
+      - 8.8.4.4
+    volumes:
+      - ./server/inputs:C:/app/server/inputs
+      - ./server/processed:C:/app/server/processed
+    restart: unless-stopped

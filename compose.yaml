@@ -7,27 +7,10 @@ x-logging: &default-logging
     max-file: "5"
 
 services:
-  postgres:
-    image: postgres:16-alpine
-    restart: unless-stopped
-    environment:
-      POSTGRES_DB: ${POSTGRES_DB:-assetflow}
-      POSTGRES_USER: ${POSTGRES_USER:-assetflow}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-    volumes: ["assetflow_pgdata:/var/lib/postgresql/data"]
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
-      interval: 5s
-      timeout: 3s
-      retries: 15
-    networks: [data]
-    security_opt: ["no-new-privileges:true"]
-    logging: *default-logging
-
   api:
     image: ${ASSETFLOW_REGISTRY:-ghcr.io/duclamtk39}/assetflow-backend:${ASSETFLOW_VERSION:-edge}
     pull_policy: always
-    restart: unless-stopped
+    restart: always
     environment:
       NODE_ENV: production
       PORT: 3000
@@ -35,22 +18,21 @@ services:
       CORS_ORIGIN: ${APP_URL:-http://localhost:8080}
       COOKIE_SECURE: "false"
       SESSION_TTL_HOURS: ${SESSION_TTL_HOURS:-12}
-      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-}
+      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-Admin@12345678}
       TZ: ${TZ:-Asia/Ho_Chi_Minh}
-      DIRECTORY_ENCRYPTION_KEY: ${DIRECTORY_ENCRYPTION_KEY:-}
+      DIRECTORY_ENCRYPTION_KEY: ${DIRECTORY_ENCRYPTION_KEY:-w5Kx8q9V2mT4jP7sY1bN0cE3zL6uF8aR2dG5hI8kJ1M=}
       ALLOW_INSECURE_LDAP: "false"
       ENABLE_SWAGGER: "false"
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_NAME: ${POSTGRES_DB:-assetflow}
-      DATABASE_USER: ${POSTGRES_USER:-assetflow}
-      DATABASE_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
-    depends_on:
-      postgres:
-        condition: service_healthy
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env}
+      RUN_DATABASE_MIGRATIONS: "true"
+      NODE_TLS_REJECT_UNAUTHORIZED: "0"
+    dns:
+      - 10.1.1.26
+      - 8.8.8.8
+      - 1.1.1.1
     volumes:
       - assetflow_documents:/var/lib/assetflow/documents
-    networks: [edge, data]
+    networks: [edge]
     security_opt: ["no-new-privileges:true"]
     cap_drop: ["ALL"]
     read_only: true
@@ -60,9 +42,13 @@ services:
   web:
     image: ${ASSETFLOW_REGISTRY:-ghcr.io/duclamtk39}/assetflow-frontend:${ASSETFLOW_VERSION:-edge}
     pull_policy: always
-    restart: unless-stopped
+    restart: always
     ports:
       - "${APP_PORT:-8080}:8080"
+    dns:
+      - 10.1.1.26
+      - 8.8.8.8
+      - 1.1.1.1
     depends_on:
       api:
         condition: service_healthy
@@ -75,9 +61,6 @@ services:
 
 networks:
   edge:
-  data:
-    internal: true
 
 volumes:
-  assetflow_pgdata:
   assetflow_documents:

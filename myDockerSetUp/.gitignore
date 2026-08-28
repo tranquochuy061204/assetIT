@@ -1,0 +1,87 @@
+# ==========================================
+# 1. DEPENDENCIES & PACKAGES
+# ==========================================
+node_modules/
+.pnpm-store/
+.yarn/
+yarn-debug.log*
+yarn-error.log*
+npm-debug.log*
+lerna-debug.log*
+
+# ==========================================
+# 2. BUILD & PRODUCTION OUTPUTS
+# ==========================================
+dist/
+build/
+out/
+.next/
+.output/
+*.tsbuildinfo
+
+# ==========================================
+# 3. ENVIRONMENT & SECRETS
+# ==========================================
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.pem
+*.key
+
+# ==========================================
+# 4. PROJECT SPECIFIC DATA (EXCEL & CSV)
+# Bỏ qua các file dữ liệu thô / nhạy cảm
+# ==========================================
+# Bỏ qua tất cả file Excel & CSV trong thư mục data/inputs/processed
+inputs/*.xlsx
+inputs/*.xls
+inputs/*.csv
+processed/*.csv
+.agent/
+.agents/
+*.md
+*.xlsx
+*.csv
+oauth_credentials.json
+token.json
+
+# Ngoại trừ các file sample/template (nếu có)
+!inputs/.gitkeep
+!inputs/template_sample.xlsx
+
+# ==========================================
+# 5. IDE & EDITOR FILES
+# ==========================================
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.swp
+*.swo
+
+# ==========================================
+# 6. SYSTEM FILES & LOGS
+# ==========================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+logs/
+*.log
+
+# ==========================================
+# 7. TESTING & COVERAGE
+# ==========================================
+coverage/
+.nyc_output/

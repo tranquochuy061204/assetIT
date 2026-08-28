@@ -1,0 +1,41 @@
+# ==========================================
+# Dockerfile cho Windows Server 2022 (Native Windows Container)
+# ==========================================
+
+# Stage 1: Build Frontend (Client)
+FROM node:20-windowsservercore-ltsc2022 AS client-builder
+
+WORKDIR C:/build/client
+
+COPY client/package*.json ./
+RUN npm ci
+
+COPY client/ ./
+ENV VITE_API_URL=/api
+RUN npm run build
+
+# Stage 2: Server Runner
+FROM node:20-windowsservercore-ltsc2022 AS runner
+
+WORKDIR C:/app
+
+# Cài đặt production dependencies cho server
+COPY server/package*.json ./server/
+WORKDIR C:/app/server
+RUN npm ci --only=production
+
+# Copy mã nguồn server & static client build
+COPY server/ ./
+COPY --from=client-builder C:/build/client/dist C:/app/client/dist
+
+# Tạo thư mục dữ liệu Excel trên Windows
+RUN powershell -Command "New-Item -Path C:\app\server\inputs -ItemType Directory -Force; New-Item -Path C:\app\server\processed -ItemType Directory -Force"
+
+# Biến môi trường
+ENV NODE_ENV=production
+ENV PORT=3001
+ENV HOST=0.0.0.0
+
+EXPOSE 3001
+
+CMD ["node", "src/server.js"]
